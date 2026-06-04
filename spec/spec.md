@@ -1,17 +1,8 @@
 # SPEC — Career Path
-### AI-powered Personalized Learning Path Generator from CV + JD
+### AI-powered CV-JD Compatibility Analyzer & Personalized Learning Path Generator
 
 **Track:** Learning OS  
 **Sản phẩm tham khảo:** Coursera Career Academy, LinkedIn Learning, Kickresume AI Career Map  
-**Thành viên nhóm:**
-
-| Mã học viên | Họ và tên |
-|-------------|-----------|
-| 2A202600698 | Nguyễn Quang Khánh An |
-| 2A202600616 | Nguyễn Như Yến Phương |
-| 2A202600676 | Đào Duy Quyền |
-| 2A202600931 | Lê Sỹ Minh Quang |
-| 2A202600862 | Bùi Xuân Hải |
 
 ---
 
@@ -303,15 +294,7 @@ Thiệt hại nếu không xử lý:
 
 ## 8. Phân công
 
-Nếu trình bày theo vai trò, có thể chia:
-
-- người viết prompt và rubric
-- người làm pipeline xử lý dữ liệu
-- người làm UI report và 2 cột CV/JD
-- người làm route và flow điều hướng sang trang analysis
-- người chuẩn bị case demo và bằng chứng
-
-Mỗi người cần nói rõ phần mình làm ra gì và vì sao nó cần thiết cho sản phẩm.
+Chi tiết xem tại [README.md](README.md)
 
 ---
 
@@ -327,25 +310,5 @@ Các quyết định đã chốt trong sản phẩm này:
 - report hiển thị ở trang riêng `/analysis`
 - report có 2 cột CV / JD để đối chiếu rõ ràng
 - roadmap chỉ hữu ích khi bám gap thật
-- default model là GPT-4.1
+- default model là GPT-4o-mini
 
-
-### Artifacts giữ lại trong quá trình làm
-
-- [ ] Screenshots kết quả 4 test paths (happy / low-confidence / failure / correction)
-- [ ] Prompt log — prompt system đã dùng, version nào, thay đổi gì
-- [ ] Test case document — input, expected output, actual output, pass/fail
-- [ ] Video screen recording demo chạy live (backup nếu demo live gặp sự cố)
-- [ ] Danh sách đánh đổi đã cân nhắc: tại sao chọn augment không phải automate, tại sao confidence threshold 50%, tại sao không persist trong prototype
-
----
-
-## 8. Phân công
-
-| Thành viên | Phụ trách | Bằng chứng cần có trong repo |
-|------------|-----------|------------------------------|
-| **Nguyễn Quang Khánh An** | SPEC hoàn chỉnh (`spec/spec.md`) + evidence pack (screenshots, trích dẫn nguồn) | File `spec/spec.md` này + thư mục `images/` trong evidence Day 5 |
-| **Nguyễn Như Yến Phương** | AI Product Canvas + failure modes + test script 4 paths | Section Canvas, Failure modes, Test plan trong spec + file test script |
-| **Đào Duy Quyền** | Prototype code: upload CV+JD → AI gap analysis → learning path output | Toàn bộ code trong `codebase/` + README chạy prototype |
-| **Lê Sỹ Minh Quang** | Test 4 paths (happy / low-confidence / failure / correction), ghi kết quả, quay video demo | Screenshots kết quả test + video demo backup |
-| **Bùi Xuân Hải** | Repo GitHub nhóm (cấu trúc, README danh sách thành viên, .gitignore) + demo script 5 phút + slide nếu có | `README.md` repo nhóm + file demo script |
