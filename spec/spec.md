@@ -15,148 +15,320 @@
 
 ---
 
+# SPEC sản phẩm
+
+CareerFit AI là công cụ giúp người dùng tự đánh giá mức độ phù hợp giữa CV và JD trước khi ứng tuyển. Sản phẩm không chỉ trả về một điểm số, mà còn giải thích rõ vì sao điểm đó được tạo ra, tiêu chí nào đang đạt, tiêu chí nào đang thiếu, và người dùng cần cải thiện gì tiếp theo.
+
+Sản phẩm hiện đã hoàn thiện theo hướng:
+- nhập CV và JD từ form
+- hỗ trợ JD paste trực tiếp hoặc lấy từ URL job
+- hỗ trợ song ngữ `vi/en`
+- chống prompt injection ở cả input và server
+- chấm điểm theo rubric cố định với 8 tiêu chí
+- hiển thị report trên một trang riêng
+- tách rõ JD base, persona, CV evidence, criteria và learning roadmap
+
+---
+
 ## 1. Bằng chứng
 
-Nỗi đau nhóm muốn giải đến từ quan sát trực tiếp và nguồn bên ngoài nhóm.
+Nỗi đau sản phẩm giải quyết xuất phát từ thực tế người dùng thường không biết:
+- JD đang yêu cầu điều gì là bắt buộc
+- CV của mình đang thiếu gì
+- nên sửa CV theo hướng nào để tăng cơ hội
+- JD nào đáng apply ngay, JD nào nên học thêm rồi mới apply
 
-### Trải nghiệm trực tiếp (self-use)
+Các bằng chứng và quan sát mà sản phẩm bám theo:
 
-| Quan sát | Hình ảnh | Pain | SPEC phải đổi gì? |
-|----------|----------|------|-------------------|
-| **LinkedIn Learning** gợi ý khóa dựa trên job title phổ biến trong ngành, không phân tích skill thật sự user đang thiếu → gợi ý quá chung chung | ![LinkedIn Learning](../../../Day05/Day05/Batch02-Day05-AI-Product-Labs/02-group-spec/images/linkedin_learning.jpg) | User có kinh nghiệm bị gợi ý khóa beginner không liên quan | AI phải đọc CV thật, không chỉ dùng job title |
-| **ChatGPT** paste CV + JD → phân tích gap tốt nhưng output dài, không structured, không persist, mỗi session phải làm lại từ đầu | ![ChatGPT session 1](../../../Day05/Day05/Batch02-Day05-AI-Product-Labs/02-group-spec/images/chatgpt_1.jpg) ![ChatGPT session 2](../../../Day05/Day05/Batch02-Day05-AI-Product-Labs/02-group-spec/images/chatgpt_2.jpg) | AI engine đủ tốt, thiếu UX wrapper: persistence, structure, tracking | Prototype cần structured UI, không chỉ chat |
-| **Kickresume AI Career Map** → chỉ list "bạn thiếu skill X, Y, Z" nhưng không gợi ý nguồn học, không có timeline | ![Kickresume 1](../../../Day05/Day05/Batch02-Day05-AI-Product-Labs/02-group-spec/images/kickresume_1.jpg) ![Kickresume 2](../../../Day05/Day05/Batch02-Day05-AI-Product-Labs/02-group-spec/images/kickresume_2.jpg) | Gap analysis → learning path là bước chưa ai làm tốt | Build slice phải end-to-end: gap → path → resources → timeline |
-| **Coursera Career Track** cố định 8 khóa từ beginner dù user đã biết 60% nội dung → bị ép học lại từ đầu | _(self-use, không chụp màn hình)_ | Lãng phí thời gian → dropout | Build slice phải có CV input để skip phần đã biết |
+- **Trải nghiệm trực tiếp trong quy trình làm việc**
+  - Người dùng thường đọc JD rất nhanh, bỏ sót requirement quan trọng.
+  - Người dùng thường đánh giá CV dựa trên cảm tính, không có rubric rõ ràng.
+  - Khi JD có nhiều ý bonus, người dùng dễ nhầm bonus thành mandatory.
 
-### Nguồn bên ngoài nhóm
+- **Bài toán thật trong app đã build**
+  - CV có thể là text paste hoặc PDF.
+  - JD có thể là text hoặc URL job.
+  - Nhiều URL job không đọc được trực tiếp, đặc biệt với các trang chặn crawler.
+  - Người dùng cần kết quả dễ hiểu, không chỉ là một con số.
 
-| Trích dẫn / Quan sát | Nguồn | Người dùng là ai? | Pain / Failure mode |
-|----------------------|-------|-------------------|---------------------|
-| 85% người học Coursera đăng ký để phát triển kỹ năng sự nghiệp — nhưng **gần 2/3 không biết mình cần học skill gì** để đạt mục tiêu | [Coursera Learner Outcomes Report — "From Catalog to Compass"](https://blog.coursera.org/from-catalog-to-compass) (Apr 2025) | Người đi làm muốn upskill / chuyển ngành | Lộ trình cố định không tính kinh nghiệm và mục tiêu cụ thể từng người |
-| **40% người được khảo sát** nói rào cản lớn nhất khi phát triển kỹ năng là **không biết bắt đầu từ đâu** | IBM study, dẫn bởi [edX press release](https://press.edx.org/edx-launches-try-it-courses-in-high-demand-digital-and-tech-skills) | Self-learner, junior dev muốn upskill | Information overload, không biết chọn khóa nào |
-| Dùng ChatGPT phân tích CV + JD là pattern phổ biến, nhưng output chỉ là **một lần duy nhất** — không lưu lại, không theo dõi tiến độ | [Jobright.ai Blog — "ChatGPT Careers"](https://jobright.ai/blog/chatgpt-careers/) (2026) | Người tìm việc, mid-career | AI analysis tốt nhưng thiếu persistence và tracking |
-| Tỷ lệ dropout MOOC từ Stanford, MIT, UC Berkeley dao động **80–95%**; chỉ 7% trong 50.000 học viên hoàn thành khóa Software Engineering trên Coursera/UC Berkeley | ["MOOCs Completion Rates and Possible Methods to Improve Retention"](https://www.researchgate.net/publication/263348990_MOOCs_Completion_Rates_and_Possible_Methods_to_Improve_Retention_-_A_Literature_Review), ResearchGate (2014) | Người học online nói chung | Overwhelmed, không phù hợp level, thiếu personalization |
+- **Quan sát từ sản phẩm hiện tại**
+  - Hệ thống cần highlight JD trước rồi mới so sánh CV.
+  - Mỗi tiêu chí cần có điểm, gap và improvement.
+  - Roadmap học nên bám vào phần thiếu thực tế, không phải roadmap chung chung.
 
-> **Giả định chưa có nguồn bên ngoài:** Việc user chỉnh sửa kết quả AI tạo ra sẽ cải thiện chất lượng output lần sau — đây là giả thiết kỹ thuật, chưa được kiểm chứng trong prototype này.
+Các quyết định trên dựa vào chính những gì app đang xử lý trong code:
+- parse CV/JD
+- chấm rubric 8 tiêu chí
+- roadmap học theo phase
+- báo cáo riêng biệt ở route `/analysis`
 
 ---
 
 ## 2. Lát cắt để build
 
-Prototype tập trung vào **một flow duy nhất**:
+Lát cắt nhỏ nhất đã được chọn là:
 
-> Cho **người mới tốt nghiệp hoặc đã đi làm 1–2 năm đang muốn apply vị trí mới**, đang **tự lên kế hoạch học thêm để match JD**, prototype sẽ dùng AI để: **đọc CV + JD → phân tích skill gap → tạo lộ trình học cá nhân hoá** ; tạo ra **danh sách skill gaps được ưu tiên + lộ trình học có nguồn cụ thể (link khóa/video) + timeline gợi ý** ; xử lý **trường hợp AI đánh giá sai skill level hoặc CV/JD quá mơ hồ** bằng **hiển thị confidence score cho mỗi skill + cho user review/chỉnh trước khi confirm lộ trình**.
+- một người dùng có CV
+- một JD bất kỳ
+- hệ thống trả về:
+  - persona/job profile
+  - điểm fit tổng
+  - breakdown theo 8 tiêu chí
+  - phần thiếu / weak evidence
+  - roadmap học để cải thiện
+  - report CV vs JD theo 2 cột
 
-**Không build trong Day 06 (backlog):**
-- Tích hợp API Coursera/Udemy để enroll tự động
-- Hệ thống tracking tiến độ + quiz/assessment sau mỗi module
-- Social features (learning community)
-- Mobile app / multi-language
+Lát cắt này đủ để demo giá trị của sản phẩm vì:
+- người dùng nhìn được JD đang đòi gì
+- nhìn được CV đang chứng minh gì
+- nhìn được gap ở đâu
+- nhìn được nên học gì tiếp theo
+
+Không cần build toàn bộ ATS hoặc full career platform. Chỉ cần lát cắt này là đã chứng minh được hướng đi của sản phẩm.
 
 ---
 
 ## 3. AI Product Canvas
 
-| Ô | Câu hỏi | Câu trả lời của nhóm |
-|---|---------|----------------------|
-| **Value — Giá trị** | Sản phẩm dành cho ai, họ đau ở đâu, AI giải được điều gì mà cách làm hiện tại chưa giải tốt? | **Đối tượng:** Người đi làm 1–2 năm muốn apply vị trí mới, đang tự học nhưng không biết học gì. <br>**Pain:** Các platform hiện tại hoặc one-size-fits-all (Coursera), hoặc chỉ dừng ở gap list mà không chỉ đường học (Kickresume), hoặc có analysis tốt nhưng không persist (ChatGPT). Tỷ lệ dropout 85–95% là bằng chứng personalization hiện tại chưa đủ. <br>**AI giải được:** end-to-end từ CV+JD → gap analysis → learning path có nguồn + timeline, dựa trên profile cá nhân thật — không phải job title chung. |
-| **Trust — Niềm tin** | Khi AI trả lời sai, người dùng nhận ra bằng cách nào, và họ sửa lại, hoàn tác hay chuyển sang người thật ra sao? | AI sai skill level → user thấy **confidence score** cho mỗi skill assessment + **nguồn trích dẫn** ("skill này lấy từ JD dòng X, CV của bạn có/không mention"). User có thể **review và chỉnh từng skill** trước khi confirm lộ trình. <br>Sau khi có lộ trình, user có thể click **"Tôi đã biết skill này"** để remove và AI tự adjust timeline. Không có "chuyển sang người thật" vì đây là advisory tool — quyết định cuối luôn thuộc về user. |
-| **Feasibility — Tính khả thi** | Có đáng để build không? Chi phí, độ trễ, dữ liệu cần, rủi ro lớn nhất, ngưỡng dừng? | **Chi phí:** ~$0.02–0.05/lần call GPT-4o (CV+JD khoảng 2.000 tokens). <br>**Độ trễ:** < 10 giây, chấp nhận được cho use case này. <br>**Dữ liệu cần:** CV text + JD text — user tự cung cấp, không cần thu thập thêm. <br>**Rủi ro lớn nhất:** AI không hiểu jargon chuyên ngành niche → miss hoặc thêm skills sai. <br>**Ngưỡng dừng:** Nếu accuracy skill extraction < 70% (user reject > 30% skill suggestions) → fallback về manual review + cảnh báo rõ. |
-| **Tín hiệu học** | Khi người dùng chỉnh sửa kết quả, dữ liệu đó đi về đâu và giúp sản phẩm khá lên nhờ tín hiệu nào? | Trong prototype Day 06 (stateless): tín hiệu học chưa được lưu. <br>**Thiết kế tương lai:** Khi user chỉnh skill level → lưu vào preference profile. <br>Khi user mark "đã biết" → dùng làm training signal để hiệu chỉnh skill extraction. <br>Khi user reject gợi ý khóa học → record preference (free/paid, video/text, platform). <br>Tín hiệu tổng hợp → cải thiện model scoring cho users tương tự. |
+| Ô | Câu hỏi cần trả lời |
+| --- | --- |
+| **Value** | Sản phẩm dành cho ai, họ đau ở đâu, và AI giải quyết điều gì mà cách làm hiện tại không giải quyết tốt? |
+| **Trust** | Khi AI trả lời sai, người dùng biết bằng cách nào, và họ sửa/hoàn tác/đối chiếu ra sao? |
+| **Feasibility** | Có đáng build không? Chi phí mỗi lần gọi, độ trễ, dữ liệu cần có, rủi ro lớn nhất và ngưỡng dừng là gì? |
+| **Tín hiệu học** | Khi người dùng chỉnh lại kết quả, dữ liệu đó quay về đâu để cải thiện prompt, rubric và roadmap? |
+
+### Value
+CareerFit AI dành cho người mới đi làm, intern, junior, hoặc người đang chuyển việc. Họ thường gặp vấn đề:
+- không đọc kỹ JD
+- không biết CV thiếu gì
+- không biết bonus nào là quan trọng
+- không biết nên học gì trước khi apply
+
+AI ở đây giải quyết phần:
+- tóm tắt và chuẩn hóa JD
+- soi CV theo rubric
+- nói rõ gap và cách cải thiện
+- tạo roadmap học cá nhân hóa
+
+### Trust
+Sản phẩm không để AI trả lời dạng “một khối văn bản đẹp”. Thay vào đó:
+- JD được parse thành persona và requirement structure
+- CV được đối chiếu theo từng tiêu chí
+- mỗi tiêu chí có `score`, `jdRequirement`, `cvEvidence`, `gap`, `improvement`
+- kết quả được hiển thị trên report riêng
+
+Khi AI sai hoặc nhập vào có prompt injection:
+- input được sanitize
+- prompt được khóa chặt
+- server tự tính lại fit score từ `scoreBreakdown`
+
+### Feasibility
+Làm được với stack hiện tại vì:
+- input là CV text / PDF và JD text / URL
+- prompt tách thành nhiều bước rõ ràng
+- kết quả là JSON cấu trúc
+- UI chỉ render dữ liệu có cấu trúc
+
+Chi phí/rủi ro chính:
+- gọi LLM nhiều bước hơn one-shot
+- URL job có thể không đọc được do crawler block
+- output roadmap có thể hallucinate nếu không siết prompt
+
+Ngưỡng dừng:
+- nếu JD không đủ rõ, hệ thống trả về `fitScore = 0`
+- nếu URL không đọc được, người dùng được yêu cầu paste JD thủ công
+
+### Tín hiệu học
+Khi user chỉnh CV hoặc sửa JD:
+- dữ liệu mới trở thành đầu vào phân tích lại
+- các gap thường gặp có thể dùng để chỉnh rubric/prompt
+- roadmap phổ biến có thể dùng để tối ưu gợi ý học cho những case tương tự
 
 ---
 
 ## 4. Tăng năng lực hay tự động hóa
 
-**Quyết định: Augmentation (tăng năng lực)**
+Sản phẩm này thiên về **tăng năng lực** hơn là tự động hóa hoàn toàn.
 
-AI gợi ý và chuẩn bị lộ trình → **con người review và quyết định cuối**.
+Lý do:
+- AI không thay người dùng quyết định có apply hay không
+- AI chỉ chuẩn hóa phân tích, chỉ ra gap, và gợi ý cải thiện
+- người dùng vẫn là người đọc, đối chiếu và quyết định cuối cùng
 
-**Con người giữ quyền ở:**
-1. **Xác nhận skill level** — review từng skill AI extract được, chỉnh nếu sai
-2. **Approve lộ trình** — confirm trước khi "bắt đầu học" (không tự enroll)
-3. **Chỉnh sửa lộ trình** — thêm/bớt skill, đổi nguồn học, điều chỉnh timeline
+Phân loại:
 
-**Lý do chọn mức này:**
-- Skill assessment từ CV có thể sai (CV không phản ánh hết năng lực thật)
-- Mỗi người có bối cảnh riêng: thời gian rảnh, budget, learning style
-- **Hậu quả nếu AI tự quyết sai:** user mất weeks/months học sai thứ → high-effort, khó hoàn tác → trust collapse
-- Domain không life-critical nhưng high-effort → cần user review + adjust
-- So sánh: nếu học sai 1 tuần mà biết → sửa được; nếu học sai 3 tháng → thiệt hại lớn
+- **AI tăng năng lực**
+  - parse JD thành persona
+  - parse CV thành facts
+  - highlight requirement bắt buộc và bonus
+  - chấm theo rubric và giải thích
+  - tạo roadmap học để người dùng tự sửa CV
+
+- **AI tự động hóa có kiểm soát**
+  - fetch JD từ URL public nếu đọc được
+  - tạo report structured
+  - tự tính lại fit score từ breakdown
+
+Quyền quyết định nằm ở:
+- người dùng khi đọc report
+- hệ thống khi tính lại score và chuẩn hóa output
+
+Vì sao chọn mức này:
+- sai ở đây không nên tự động hóa quá sâu
+- nếu AI tự động quyết định hoàn toàn, hậu quả là người dùng tin sai vào một con số
 
 ---
 
 ## 5. Bốn đường đi của trải nghiệm
 
-| Đường đi | Câu hỏi | Prototype thể hiện thế nào |
-|----------|---------|---------------------------|
-| **Đường thuận** | AI đúng và tự tin — người dùng thấy gì? | User upload CV Junior Frontend (HTML/CSS/JS/React) + paste JD Senior Frontend (TypeScript, Next.js, Testing, System Design). <br>AI hiển thị: "Bạn đã có 4/8 skills, cần bổ sung 4 skills" <br>→ show lộ trình 3 tháng, 4 modules, mỗi module có 2–3 nguồn (free YouTube + paid Udemy) + timeline tuần <br>→ user approve <br>→ xem lộ trình đầy đủ. |
-| **Khi AI không chắc** | AI lưỡng lự — có hỏi lại không? | User upload CV mơ hồ ("đã làm việc với data") + JD "Advanced SQL, Python, Tableau". <br>→ AI không chắc user biết SQL ở mức nào <br>→ hiển thị: "Tôi thấy bạn có kinh nghiệm data nhưng chưa rõ mức SQL. Bạn tự đánh giá: Beginner / Intermediate / Advanced?" <br>→ user chọn <br>→ AI adjust lộ trình tương ứng. |
-| **Khi AI sai** | Kết quả sai — người dùng gỡ ra thế nào? | User upload CV giáo viên Tiếng Anh + JD Software Engineer <br>→ gap quá lớn (thiếu 90% skills). AI cảnh báo: "Khoảng cách skill rất lớn, lộ trình ước tính 12–18 tháng. Bạn có muốn xem các vị trí trung gian (QA Tester, Technical Writer) gần hơn với profile hiện tại không?" <br>→ đưa ra lộ trình thay thế thực tế hơn. |
-| **Khi người dùng sửa** | Người dùng chỉnh lại — dữ liệu đi về đâu? | Sau khi nhận lộ trình, user thấy AI gợi ý học "Python cơ bản" nhưng mình đã biết (chỉ là CV không ghi). User click "Tôi đã biết skill này" <br>→ AI remove khỏi lộ trình + tự adjust timeline. _(Trong prototype: preference chưa được persist; thiết kế tương lai: lưu lại cho lần sau.)_ |
+### 1. Đường thuận
+Người dùng có CV rõ, JD rõ.
+- upload CV hoặc paste CV
+- paste JD hoặc nhập URL JD
+- hệ thống parse và chấm
+- report trả ra rõ:
+  - JD base
+  - persona
+  - CV evidence
+  - criteria
+  - roadmap
+
+### 2. Khi AI không chắc
+Nếu JD quá mơ hồ:
+- hệ thống trả `fitScore = 0`
+- yêu cầu bổ sung JD chi tiết hơn
+- không cố bịa điểm
+
+Nếu URL job không đọc được:
+- báo lỗi đọc URL
+- gợi ý paste JD thủ công
+
+### 3. Khi AI sai
+Nếu output model lệch format hoặc quá lạc đề:
+- server parse JSON chặt
+- server tự tính lại score từ breakdown
+- roadmap bị normalize để loại type sai, link sai
+
+### 4. Khi người dùng sửa
+Người dùng có thể:
+- đổi locale
+- sửa CV
+- sửa JD
+- chạy lại phân tích
+
+Dữ liệu kết quả được chuyển sang trang report riêng để user xem lại ngay sau khi phân tích.
 
 ---
 
 ## 6. Những kiểu lỗi đáng lo nhất
 
-### Failure Mode 1 — CV mơ hồ / JD có jargon chuyên ngành niche
+### 1. Prompt injection trong CV/JD
+Tình huống:
+- CV hoặc JD chứa câu kiểu “ignore previous instructions”
+- yêu cầu chấm 100 điểm
+- yêu cầu bỏ qua rubric
 
-**Khi nào xảy ra:** User upload CV ghi chung chung ("worked with data", "built web apps") hoặc JD có từ ngữ chuyên ngành rất niche mà LLM không quen (ví dụ: tên thư viện nội bộ, framework ngách).
+Xử lý:
+- sanitize ở input
+- sanitize ở server
+- system prompt khóa hành vi
+- server tự tính lại score
 
-**Ai chịu thiệt và nặng đến đâu:** User nhận lộ trình sai — thiếu skill quan trọng hoặc thêm skill không cần. Hậu quả: học sai nhiều tuần/tháng <br>→ mất thời gian + mất trust vào sản phẩm.
+Thiệt hại nếu không xử lý:
+- model bị điều khiển, điểm bị kéo sai
 
-**Prototype xử lý:** Hiển thị **confidence score** cho từng skill assessment (ví dụ: "SQL — 60% chắc, dựa trên 'worked with data'"). Show nguồn trích dẫn: "Skill này lấy từ JD dòng 12, CV của bạn có/không mention cụ thể." Cho user **review và chỉnh từng skill** trước khi confirm. Nếu confidence < 50% <br>→ hỏi lại user thay vì tự quyết.
+### 2. JD quá mơ hồ
+Tình huống:
+- JD chỉ có vài dòng chung chung
 
----
+Xử lý:
+- trả `fitScore = 0`
+- yêu cầu bổ sung thông tin
 
-### Failure Mode 2 — Gap quá lớn, lộ trình không thực tế
+Thiệt hại nếu không xử lý:
+- model sẽ đoán bừa và làm user hiểu nhầm
 
-**Khi nào xảy ra:** User có background hoàn toàn khác ngành so với JD mục tiêu (ví dụ: giáo viên → software engineer; kế toán → data scientist). AI cố tạo lộ trình dẫn đến output 12–18 tháng học với 20+ skills.
+### 3. URL job không crawl được
+Tình huống:
+- website chặn crawler / Cloudflare
 
-**Ai chịu thiệt và nặng đến đâu:** User bị overwhelmed ngay từ đầu <br>→ bỏ cuộc trước khi bắt đầu. <br>→ Đây là failure mode có tỷ lệ cao nhất vì replicates vấn đề "information overload" hiện tại trên Coursera/LinkedIn.
+Xử lý:
+- thử Tavily Extract
+- nếu fail thì báo lỗi riêng
+- yêu cầu paste JD
 
-**Prototype xử lý:** Phát hiện khi gap > 70% skills thiếu <br>→ cảnh báo rõ ("Khoảng cách skill rất lớn"). Tự động đề xuất **vị trí trung gian** gần hơn với profile hiện tại (QA Tester, Technical Writer, Data Analyst). <br>→ Cho user chọn: tiếp tục với lộ trình dài hạn hoặc chuyển sang mục tiêu gần hơn.
+Thiệt hại nếu không xử lý:
+- user tưởng hệ thống lỗi, trong khi thực ra do nguồn job
 
----
+### 4. Roadmap học bị chung chung
+Tình huống:
+- AI trả roadmap dài nhưng không bám gap thật
 
-### Failure Mode 3 — User ghi skills không có vào CV (inflate CV)
+Xử lý:
+- roadmap phải bám missingSkills / weakEvidence
+- chỉ technical mới có courseUrl
+- hậu kiểm type và URL ở server
 
-**Khi nào xảy ra:** User ghi vào CV các skill mình chưa thực sự có để trông CV đẹp hơn <br>→ AI đọc CV và tin vào đó <br>→ skip skills quan trọng trong lộ trình.
-
-**Ai chịu thiệt và nặng đến đâu:** Chủ yếu user tự hại bản thân: nhận lộ trình thiếu foundation skills <br>→ khi đi phỏng vấn hoặc làm việc thật sẽ bị lộ. <br>→ Không gây hại bên ngoài.
-
-**Prototype xử lý:** Không thể verify CV — đây là **giới hạn thiết kế đã biết**. <br>→ Cách xử lý: ghi rõ trong UI "Lộ trình này dựa trên những gì bạn khai báo trong CV. Nếu bạn chưa chắc về skill nào, hãy tự đánh giá lại ở bước review." Có nút "Tôi chưa chắc về skill này" để user tự flag → AI suggest cách self-assess (bài test nhỏ, resource để verify level).
+Thiệt hại nếu không xử lý:
+- roadmap nhìn hay nhưng không dùng được
 
 ---
 
 ## 7. Kế hoạch kiểm thử và bằng chứng demo
 
-### Hai input chuẩn bị sẵn để demo
+### Case cần test
+- CV mạnh, JD rõ
+- CV yếu, JD rõ
+- JD mơ hồ
+- JD qua URL public
+- URL bị chặn crawler
+- CV/JD có prompt injection tiếng Anh
+- CV/JD có prompt injection tiếng Việt
 
-**Input 1 — Happy case (Đường thuận):**
-```
-CV: Junior Frontend Developer, 1.5 năm kinh nghiệm
-Skills: HTML, CSS, JavaScript, React, Git, REST API
-JD: Senior Frontend Developer — yêu cầu thêm: TypeScript, Next.js, Jest/Testing Library, System Design cơ bản, CI/CD
+### Những bằng chứng nên mang đi demo
+- screenshot report /analysis
+- screenshot 2 cột CV vs JD
+- screenshot breakdown từng tiêu chí
+- screenshot roadmap học
+- log thể hiện URL fail và fallback thủ công
+- ví dụ CV sửa lại sau khi xem gap
 
-Kỳ vọng output: 
-- Gap: TypeScript, Next.js, Jest, System Design (4 skills)
-- Lộ trình 3 tháng, 4 modules
-- Mỗi module: 2–3 nguồn học (1 free YouTube, 1 paid Udemy/Pluralsight) + timeline tuần
-```
+### Cần chứng minh trên demo
+- JD được highlight trước
+- điểm số không phải do model bịa
+- roadmap không chung chung
+- prompt injection không làm lệch điểm
 
-**Input 2 — Hard case (AI không chắc + phục hồi):**
-```
-CV: "3 năm làm việc trong lĩnh vực data, quen với phân tích số liệu, 
-      sử dụng các công cụ xử lý dữ liệu"
-JD: Data Analyst — yêu cầu: Advanced SQL, Python (Pandas, NumPy), Tableau, 
-     Power BI, Statistical Analysis
+---
 
-Kỳ vọng output:
-- AI nhận ra CV mơ hồ → confidence thấp cho hầu hết skills
-- Hỏi lại user tự đánh giá level cho SQL và Python
-- Sau khi user chọn level → generate lộ trình adjusted
-```
+## 8. Phân công
+
+Nếu trình bày theo vai trò, có thể chia:
+
+- người viết prompt và rubric
+- người làm pipeline xử lý dữ liệu
+- người làm UI report và 2 cột CV/JD
+- người làm route và flow điều hướng sang trang analysis
+- người chuẩn bị case demo và bằng chứng
+
+Mỗi người cần nói rõ phần mình làm ra gì và vì sao nó cần thiết cho sản phẩm.
+
+---
+
+## Tóm tắt quyết định sản phẩm
+
+Các quyết định đã chốt trong sản phẩm này:
+
+- base chấm là JD, không phải CV
+- score dùng rubric cứng 8 tiêu chí
+- AI phải trả JSON structured
+- server tự tính lại `fitScore`
+- prompt injection được lọc ở input và server
+- report hiển thị ở trang riêng `/analysis`
+- report có 2 cột CV / JD để đối chiếu rõ ràng
+- roadmap chỉ hữu ích khi bám gap thật
+- default model là GPT-4.1
+
 
 ### Artifacts giữ lại trong quá trình làm
 
