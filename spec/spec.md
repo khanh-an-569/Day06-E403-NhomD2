@@ -1,4 +1,4 @@
-# SPEC — Career Path
+# SPEC — CareerFit AI
 ### AI-powered CV-JD Compatibility Analyzer & Personalized Learning Path Generator
 
 **Track:** Learning OS  
